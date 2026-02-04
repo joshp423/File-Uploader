@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Uploader</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('partials/nav') %>
+    <div class="signUpForm">
+        <h1>Sign up</h1>
+        <form action="/sign-up" method="POST">
+            <label for="username">Email:</label>
+            <input id="username" name="username" placeholder="email" type="email" />
+            <label for="password">Password:</label>
+            <input id="password" name="password" type="password" />
+            <button type="submit">Log In</button>
+        </form>
+    </div>
+</body>
+</html>

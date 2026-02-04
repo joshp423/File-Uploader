@@ -1,7 +1,8 @@
 const expressSession = require('express-session');
 require('dotenv/config');
+const express = require("express");
 const { PrismaPg } = require('@prisma/adapter-pg'); 
-const { PrismaClient } = require('../../generated/prisma/client');
+const { PrismaClient } = require('./generated/prisma/client.js');
 const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
 const app = express();
 const path = require("node:path");
@@ -42,5 +43,5 @@ app.listen(PORT, (error) => {
   if (error) {
     throw error;
   }
-  console.log(`Members Only - listening on port ${PORT}!`);
+  console.log(`File Uploader - listening on port ${PORT}!`);
 });

@@ -1,0 +1,21 @@
+<nav>
+    <h1>File Uploader</h1>
+    <div class="navLinks">
+        <% if (locals.user) {%>
+            <a href="/">
+            <button>Home</button>
+            </a>
+            <a href="/log-out">
+            <button>Log Out</button>
+            </a>
+        <% } else { %>
+            <a href="/">
+            <button>Log In</button>
+            </a>
+            <a href="/sign-up">
+            <button>Sign Up</button>
+            </a>
+        <%}%>
+    </div>
+  </ul>
+</nav>
