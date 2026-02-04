@@ -1,8 +1,6 @@
-require("dotenv").config();
-const passport = require("passport");
-const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcryptjs");
 const { body, validationResult, matchedData } = require("express-validator");
+const prisma = require("../lib/prisma.js")
 
 const emailErr = "must be a valid email address";
 const emailLengthErr = "must be between 1 and 50 characters";
@@ -36,7 +34,9 @@ async function logInPageGet(req, res) {
     res.render("login", {user: req.user});
 }
 
-async function signInPageGet(req, res) {
+
+
+async function signUpPageGet(req, res) {
     if (req.user) {
         res.redirect("/");
     }
@@ -48,7 +48,7 @@ const signUpFormPost = [
     async (req, res, next) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
-            return res.status(400).render("sign-up-form", {
+            return res.status(400).render("signUp", {
             title: "Sign Up",
             user: req.user,
             errors: errors.array(),
@@ -57,7 +57,18 @@ const signUpFormPost = [
         const { username, password } = matchedData(req);
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
-            await db.addNewUser(username, hashedPassword);
+            const user = await prisma.user.create({
+                data: {
+                    email: username,
+                    password: hashedPassword
+                },
+            });
+            await prisma.folder.create({
+                data: {
+                    name: `${username}-Home`,
+                    userid: user.id,
+                },
+            })
             res.redirect("/");
         } catch (error) {
             console.error(error);
@@ -69,6 +80,6 @@ const signUpFormPost = [
 module.exports = {
     homepageGet,
     logInPageGet,
-    signInPageGet,
+    signUpPageGet,
     signUpFormPost
 }
