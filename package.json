@@ -23,7 +23,6 @@
     "@prisma/client": "^7.3.0",
     "@quixo3/prisma-session-store": "^3.1.19",
     "bcryptjs": "^3.0.3",
-    "dotenv": "^17.2.3",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
@@ -34,6 +33,7 @@
     "prettier": "^3.8.1"
   },
   "devDependencies": {
+    "dotenv": "^17.2.4",
     "prisma": "^7.3.0"
   }
 }

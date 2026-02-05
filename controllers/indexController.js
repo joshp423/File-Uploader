@@ -1,6 +1,6 @@
-const bcrypt = require("bcryptjs");
-const { body, validationResult, matchedData } = require("express-validator");
-const prisma = require("../lib/prisma.js")
+import bcrypt from "bcryptjs";
+import { body, validationResult, matchedData } from "express-validator";
+import prisma from "../lib/prisma.js";
 
 const emailErr = "must be a valid email address";
 const emailLengthErr = "must be between 1 and 50 characters";
@@ -55,6 +55,7 @@ const signUpFormPost = [
             });
         }
         const { username, password } = matchedData(req);
+        console.log(prisma, prisma.user)
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
             const user = await prisma.user.create({
@@ -66,7 +67,7 @@ const signUpFormPost = [
             await prisma.folder.create({
                 data: {
                     name: `${username}-Home`,
-                    userid: user.id,
+                    userid: user.id
                 },
             })
             res.redirect("/");
