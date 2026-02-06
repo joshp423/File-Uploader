@@ -16,7 +16,6 @@ datasource db {
 model User {
   id  Int @id @default(autoincrement())
   email String  @unique
-  name  String?
   password String
   folders Folder[]
 }
@@ -26,7 +25,7 @@ model Folder {
   name  String 
   user  User  @relation(fields: [userid], references: [id])
   userid Int
-  parentFolder Int
+  parentFolder Int?
   files File[]
 }
 

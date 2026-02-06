@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { body, validationResult, matchedData } from "express-validator";
 import prisma from "../lib/prisma.js";
+import passport from "passport";
 
 const emailErr = "must be a valid email address";
 const emailLengthErr = "must be between 1 and 50 characters";
@@ -22,28 +23,75 @@ const validateSignUp = [
     .withMessage(`Password: ${passwordAlphaNumericErr}`),
 ];
 
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+            email: username,
+        },
+    })
 
-async function homepageGet(req, res) {
+    if (!user) {
+        return done(null, false, { message: "Incorrect username" });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+        // passwords do not match!
+        return done(null, false, { message: "Incorrect password" });
+    }
+        return done(null, user);
+    } catch (err) {
+        return done(err);
+    }
+  }),
+);
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await prisma.user.findUnique({
+        where: {
+            email: username,
+        },
+    });
+
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
+export async function homepageGet(req, res) {
     res.render("index", {user: req.user});
 }
 
-async function logInPageGet(req, res) {
+export async function logInPageGet(req, res) {
     if (req.user) {
         res.redirect("/");
     }
     res.render("login", {user: req.user});
 }
 
+export const logInPagePost = passport.authenticate("local", {
+    successRedirect: "/",
+    failureRedirect: "/",
+})
 
 
-async function signUpPageGet(req, res) {
+
+export async function signUpPageGet(req, res) {
     if (req.user) {
         res.redirect("/");
     }
     res.render("signUp");
 }
 
-const signUpFormPost = [
+export const signUpFormPost = [
     ...validateSignUp,
     async (req, res, next) => {
         const errors = validationResult(req);
@@ -77,10 +125,3 @@ const signUpFormPost = [
         }
     },
 ];
-
-module.exports = {
-    homepageGet,
-    logInPageGet,
-    signUpPageGet,
-    signUpFormPost
-}
