@@ -12,8 +12,8 @@
         <h1>All your files. All here.</h1>
         <p>One of the file uploading platforms of all time. Upload files with us today.</p>
         <div class="HPButtons">
-        <% if (locals.user) {%>
-            <a href=""><button>Your Files</button></a>
+        <% if (user) {%>
+            <a href="/view-files/<%= user %>/<%= userHomeFolder.id %>"><button>Your Files</button></a>
             <a href="/log-out"><button>Log Out</button></a>
         <% } else { %>
             <a href="/log-in"><button>Log In</button></a>
