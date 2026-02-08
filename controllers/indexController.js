@@ -129,7 +129,7 @@ export const signUpFormPost = [
             });
             await prisma.folder.create({
                 data: {
-                    name: `${username}-Home`,
+                    name: `Home`,
                     userid: user.id
                 },
             })

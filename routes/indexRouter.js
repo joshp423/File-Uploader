@@ -7,7 +7,7 @@ indexRouter.get("/log-in", indexController.logInPageGet);
 indexRouter.get("/sign-up", indexController.signUpPageGet);
 indexRouter.post("/sign-up", indexController.signUpFormPost)
 indexRouter.post("/log-in", indexController.logInPagePost)
-indexRouter.get("/view-files/:userId/:folderId", indexController.viewFolderGet)
+indexRouter.get("/view-files/user/:userId/folder/:folderId", indexController.viewFolderGet)
 
 
 

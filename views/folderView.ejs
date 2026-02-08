@@ -4,16 +4,30 @@
     <meta charset="UTF-8">
     <title><%- selectedFolder.name %></title>
     <link rel="stylesheet" href="/styles.css">
+    <script src="https://kit.fontawesome.com/2378952b6f.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <%- include('partials/nav') %>
     <div class="folderPage">
+        <% if (!selectedFolder.parentFolder) {%>
+            <div class="folderNavButtons">
+                <a href="/create-folder/<%= user %>/<%= selectedFolder.id %>"><button>Create new folder</button></a>
+                <a href="/upload-file/<%= user %>/<%= selectedFolder.id %>"><button>Upload File</button></a>
+            </div>
+             <div class="folderTitle">
+                <i class="fa-regular fa-folder"></i>
+                <h1><%= selectedFolder.name %></h1>
+            </div>
+        <% } else { %>
+            <div class="folderNavButtons">
+                <a href="/view-files/<%= user %>/<%= selectedFolder.parentFolder %>"><button>Go to parentFolder</button></a>
+                <a href="/create-folder/<%= user %>/<%= selectedFolder.id %>"><button>Create new folder</button></a>
+                <a href="/upload-file/<%= user %>/<%= selectedFolder.id %>"><button>Upload File</button></a>
         <div class="folderTitle">
             <i class="fa-regular fa-folder"></i>
             <h1><%= selectedFolder.name %></h1>
         </div>
-        <div class="navButtons">
-        </div>
+        <% }; %>
     </div>
 </body>
 </html>
