@@ -27,6 +27,7 @@ model Folder {
   userid Int
   parentFolder Int?
   files File[]
+  @@unique([userid, parentFolder, name])
 }
 
 model File {

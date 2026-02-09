@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import { body, validationResult, matchedData } from "express-validator";
 import prisma from "../lib/prisma.js";
 import passport from "passport";
-import {Strategy as LocalStrategy} from "passport-local";
+import { Strategy as LocalStrategy } from "passport-local";
 
 const emailErr = "must be a valid email address";
 const emailLengthErr = "must be between 1 and 50 characters";
@@ -24,27 +24,36 @@ const validateSignUp = [
     .withMessage(`Password: ${passwordAlphaNumericErr}`),
 ];
 
+const lengthErr = "must be between 1 and 25 characters";
+
+const validateCreateFolder = [
+  body("name")
+    .trim()
+    .isLength({ min: 1, max: 25 })
+    .withMessage(`Message Title: ${lengthErr}`),
+];
+
 passport.use(
   new LocalStrategy(async (username, password, done) => {
     try {
       const user = await prisma.user.findUnique({
         where: {
-            email: username,
+          email: username,
         },
-    })
+      });
 
-    if (!user) {
+      if (!user) {
         return done(null, false, { message: "Incorrect username" });
-    }
+      }
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) {
+      const match = await bcrypt.compare(password, user.password);
+      if (!match) {
         // passwords do not match!
         return done(null, false, { message: "Incorrect password" });
-    }
-        return done(null, user);
+      }
+      return done(null, user);
     } catch (err) {
-        return done(err);
+      return done(err);
     }
   }),
 );
@@ -56,9 +65,9 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser(async (id, done) => {
   try {
     const user = await prisma.user.findUnique({
-        where: {
-            email: username,
-        },
+      where: {
+        email: username,
+      },
     });
 
     done(null, user);
@@ -68,98 +77,148 @@ passport.deserializeUser(async (id, done) => {
 });
 
 export async function homepageGet(req, res) {
-    console.log(req.session.passport.user)
-    if (req.session.passport.user) {
-        const userHomeFolder = await prisma.folder.findFirst({
-            where: {
-                parentFolder: null,
-                userid: req.session.passport.user
-            }
-        })
-        console.log(userHomeFolder)
-        res.render("index", {user: req.session.passport.user, userHomeFolder});
-        return;
-    }
-    res.render("index", {user: req.session.passport.user});
+  console.log(req.session.passport.user);
+  if (req.session.passport.user) {
+    const userHomeFolder = await prisma.folder.findFirst({
+      where: {
+        parentFolder: null,
+        userid: req.session.passport.user,
+      },
+    });
+    console.log(userHomeFolder);
+    res.render("index", { user: req.session.passport.user, userHomeFolder });
+    return;
+  }
+  res.render("index", { user: req.session.passport.user });
 }
 
 export async function logInPageGet(req, res) {
-    if (req.session.passport.user) {
-        res.redirect("/");
-    }
-    res.render("login", {
-        user: req.session.passport.user,
-        error: req.flash("error"),
-    });
+  if (req.session.passport.user) {
+    res.redirect("/");
+  }
+  res.render("login", {
+    user: req.session.passport.user,
+    error: req.flash("error"),
+  });
 }
 
 export const logInPagePost = passport.authenticate("local", {
-    successRedirect: "/",
-    failureRedirect: "/log-in",
-    failureFlash: "Invalid username or password",
-})
+  successRedirect: "/",
+  failureRedirect: "/log-in",
+  failureFlash: "Invalid username or password",
+});
 
 export async function signUpPageGet(req, res) {
-    if (req.user) {
-        res.redirect("/");
-    }
-    res.render("signUp");
+  if (req.user) {
+    res.redirect("/");
+  }
+  res.render("signUp");
 }
 
 export const signUpFormPost = [
-    ...validateSignUp,
-    async (req, res, next) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).render("signUp", {
-            title: "Sign Up",
-            user: req.session.passport.user,
-            errors: errors.array(),
-            });
-        }
-        const { username, password } = matchedData(req);
-        console.log(prisma, prisma.user)
-        try {
-            const hashedPassword = await bcrypt.hash(password, 10);
-            const user = await prisma.user.create({
-                data: {
-                    email: username,
-                    password: hashedPassword
-                },
-            });
-            await prisma.folder.create({
-                data: {
-                    name: `Home`,
-                    userid: user.id
-                },
-            })
-            res.redirect("/");
-        } catch (error) {
-            console.error(error);
-            next(error);
-        }
-    },
+  ...validateSignUp,
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("signUp", {
+        title: "Sign Up",
+        user: req.session.passport.user,
+        errors: errors.array(),
+      });
+    }
+    const { username, password } = matchedData(req);
+    console.log(prisma, prisma.user);
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await prisma.user.create({
+        data: {
+          email: username,
+          password: hashedPassword,
+        },
+      });
+      await prisma.folder.create({
+        data: {
+          name: `Home`,
+          userid: user.id,
+        },
+      });
+      res.redirect("/");
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
 ];
 
-export async function viewFolderGet ( req, res ) {
-    console.log(Number(req.params.folderId))
-    const selectedFolder = await prisma.folder.findUnique({
-        where: {
-            id: Number(req.params.folderId)
-        }
-    })
-    const folderChildren = await prisma.folder.findMany({
-        where: {
-            parentFolder: selectedFolder.id
-        }
-    })
-    if (!req.session.passport.user) {
-        res.redirect("/");
-        return;
-    }
-    res.render("folderView", {
-        user: req.session.passport.user,
-        selectedFolder,
-        folderChildren
-    });
+export async function viewFolderGet(req, res) {
+  if (!req.session.passport.user) {
+    res.redirect("/");
+    return;
+  }
+  const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+  const folderChildren = await prisma.folder.findMany({
+    where: {
+      parentFolder: selectedFolder.id,
+    },
+  });
+  console.log(folderChildren);
+  res.render("folderView", {
+    user: req.session.passport.user,
+    selectedFolder,
+    folderChildren,
+  });
 }
+
+export async function createFolderGet(req, res) {
+  if (!req.session.passport.user) {
+    res.redirect("/");
+    return;
+  }
+  const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+  res.render("folders/createFolder", {
+    user: req.session.passport.user,
+    selectedFolder,
+  });
+}
+
+export const createFolderPost = [
+  ...validateCreateFolder,
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("folders/createFolder", {
+        title: "Create Folder",
+        user: req.session.passport.user,
+        errors: errors.array(),
+      });
+    }
+    const selectedFolder = await prisma.folder.findUnique({
+      where: {
+        id: Number(req.params.folderId),
+      },
+    });
+
+    const { name } = matchedData(req);
+    try {
+      await prisma.folder.create({
+        data: {
+          name,
+          parentFolder: selectedFolder.id,
+          userid: req.session.passport.user,
+        },
+      });
+      res.redirect("/view-files/user/:userId/folder/:folderId");
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+];

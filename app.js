@@ -1,9 +1,9 @@
-const expressSession = require('express-session');
-require('dotenv/config');
+const expressSession = require("express-session");
+require("dotenv/config");
 const express = require("express");
-const { PrismaPg } = require('@prisma/adapter-pg'); 
-const { PrismaClient } = require('./generated/prisma/client.js');
-const { PrismaSessionStore } = require('@quixo3/prisma-session-store');
+const { PrismaPg } = require("@prisma/adapter-pg");
+const { PrismaClient } = require("./generated/prisma/client.js");
+const { PrismaSessionStore } = require("@quixo3/prisma-session-store");
 const app = express();
 const path = require("node:path");
 const indexRouter = require("./routes/indexRouter");
@@ -20,20 +20,17 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   expressSession({
     cookie: {
-     maxAge: 7 * 24 * 60 * 60 * 1000 // ms
+      maxAge: 7 * 24 * 60 * 60 * 1000, // ms
     },
-    secret: 'a santa at nasa',
+    secret: "a santa at nasa",
     resave: true,
     saveUninitialized: true,
-    store: new PrismaSessionStore(
-      prisma,
-      {
-        checkPeriod: 2 * 60 * 1000,  //ms
-        dbRecordIdIsSessionId: true,
-        dbRecordIdFunction: undefined,
-      }
-    )
-  })
+    store: new PrismaSessionStore(prisma, {
+      checkPeriod: 2 * 60 * 1000, //ms
+      dbRecordIdIsSessionId: true,
+      dbRecordIdFunction: undefined,
+    }),
+  }),
 );
 
 app.use("/", indexRouter);
