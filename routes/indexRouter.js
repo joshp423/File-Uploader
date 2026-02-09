@@ -20,4 +20,9 @@ indexRouter.post(
   indexController.createFolderPost,
 );
 
+indexRouter.get("/edit-folder/user/:userId/folder/:folderId", indexController.editFolderGet);
+indexRouter.post("/edit-folder/user/:userId/folder/:folderId", indexController.editFolderPost);
+indexRouter.get("/delete-folder/user/:userId/folder/:folderId", indexController.deleteFolderGet);
+
+
 module.exports = indexRouter;

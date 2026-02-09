@@ -26,7 +26,7 @@ const validateSignUp = [
 
 const lengthErr = "must be between 1 and 25 characters";
 
-const validateCreateFolder = [
+const validateCreateorEditFolder = [
   body("name")
     .trim()
     .isLength({ min: 1, max: 25 })
@@ -151,15 +151,18 @@ export const signUpFormPost = [
 ];
 
 export async function viewFolderGet(req, res) {
-  if (!req.session.passport.user) {
-    res.redirect("/");
-    return;
-  }
+
   const selectedFolder = await prisma.folder.findUnique({
     where: {
       id: Number(req.params.folderId),
     },
   });
+
+   if (!req.session.passport.user || req.session.passport.user !== selectedFolder.userid) {
+        res.redirect("/");
+        return;
+    }
+
   const folderChildren = await prisma.folder.findMany({
     where: {
       parentFolder: selectedFolder.id,
@@ -190,7 +193,7 @@ export async function createFolderGet(req, res) {
 }
 
 export const createFolderPost = [
-  ...validateCreateFolder,
+  ...validateCreateorEditFolder,
   async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -222,3 +225,77 @@ export const createFolderPost = [
     }
   },
 ];
+
+export async function editFolderGet(req, res) {
+  const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+   if (!req.session.passport.user || !selectedFolder.parentFolder || req.session.passport.user !== selectedFolder.userid) {
+    res.redirect("/");
+    return;
+  }
+  res.render("folders/editFolder", {
+    user: req.session.passport.user,
+    selectedFolder,
+  });
+}
+
+export const editFolderPost = [
+  ...validateCreateorEditFolder,
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("folders/editFolder", {
+        title: "Edit Folder",
+        user: req.session.passport.user,
+        errors: errors.array(),
+      });
+    }
+    const selectedFolder = await prisma.folder.findUnique({
+      where: {
+        id: Number(req.params.folderId),
+      },
+    });
+
+    const { name } = matchedData(req);
+    try {
+      await prisma.folder.update({
+        where: {
+            id: selectedFolder.id
+        },
+        data: {
+          name,
+        },
+      });
+      res.redirect("/view-files/user/:userId/folder/:folderId");
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+];
+
+export async function deleteFolderGet (req, res) {
+    const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+   if (!req.session.passport.user || !selectedFolder.parentFolder || req.session.passport.user !== selectedFolder.userid) {
+    res.redirect("/");
+    return;
+  }
+  try {
+      await prisma.folder.delete({
+        where: {
+            id: selectedFolder.id
+        }
+      });
+      res.redirect(`/view-files/user/:userId/folder/${selectedFolder.parentFolder}`);
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+}

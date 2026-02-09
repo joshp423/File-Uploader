@@ -1,9 +1,7 @@
 <div class="childFolder">
     <div class="childFolderTitle">
         <i class="fa-regular fa-folder"></i>
-        <h1><%= folder.name %></h1>
+        <a href="/view-files/user/<%= user %>/folder/<%= folder.id %>"><h1><%= folder.name %></h1></a>
     </div>
-    <div class="childFolder">
-        <a href="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Edit or Delete folder</button></a>
-    </div>
+    
 </div>

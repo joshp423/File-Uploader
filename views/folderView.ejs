@@ -10,10 +10,10 @@
     <%- include('partials/nav') %>
     <div class="folderPage">
         <% if (selectedFolder.parentFolder) {%>
-            <div class="folderNavButtons">
-                <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Go to parent folder</button></a>
-                <a href="/create-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Create new folder</button></a>
-                <a href="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Upload File</button></a>
+            <%- include('partials/folderNavButtons') %>
+            <div class="homeFolderTitle">
+                <i class="fa-regular fa-folder"></i>
+                <h1><%- selectedFolder.name %></h1> 
             </div>
         <% } else { %>
             <div class="folderNavButtons">
@@ -21,8 +21,7 @@
                 <a href="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Upload File</button></a>
             </div>
             <div class="homeFolderTitle">
-                <i class="fa-regular fa-folder"></i>
-                <h1>Home Folder</h1> 
+                <h1>Your Files</h1> 
             </div>
         <% }; %>
         <% if (folderChildren.length >= 1) {%>

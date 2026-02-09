@@ -2,24 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>File Uploader</title>
+    <title>Edit or Delete <%- selectedFolder.name %></title>
     <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-    <%- include('partials/nav') %>
-    <div class="HPMain">
-        <h1>File Uploader.</h1>
-        <h1>All your files. All here.</h1>
-        <p>One of the file uploading platforms of all time. Upload files with us today.</p>
-        <div class="HPButtons">
-        <% if (user) {%>
-            <a href="/view-files/user/<%= user %>/folder/<%= userHomeFolder.id %>"><button>Your Files</button></a>
-            <a href="/log-out"><button>Log Out</button></a>
-        <% } else { %>
-            <a href="/log-in"><button>Log In</button></a>
-            <a href="/sign-up"><button>Sign Up</button></a>
-        <% } %>
-        </div>
+    <%- include('../partials/nav') %>
+    <%- include('../partials/folderNavButtons') %>
+    <div class="editFolderForm">
+        <h1>Edit <%- selectedFolder.name %></h1>
+        <form method="post" action="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>">
+            <label for="name">New Folder Name</label>
+            <input id="name" name="name" type="text" value="<%= selectedFolder.name %>"/>
+            <button type="submit">Create Folder</button>
+        </form>
+        <a href="/delete-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Delete Folder and Contents</button></a>
+
     </div>
 </body>
 </html>
