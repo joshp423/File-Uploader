@@ -20,9 +20,25 @@ indexRouter.post(
   indexController.createFolderPost,
 );
 
-indexRouter.get("/edit-folder/user/:userId/folder/:folderId", indexController.editFolderGet);
-indexRouter.post("/edit-folder/user/:userId/folder/:folderId", indexController.editFolderPost);
-indexRouter.get("/delete-folder/user/:userId/folder/:folderId", indexController.deleteFolderGet);
-
+indexRouter.get(
+  "/edit-folder/user/:userId/folder/:folderId",
+  indexController.editFolderGet,
+);
+indexRouter.post(
+  "/edit-folder/user/:userId/folder/:folderId",
+  indexController.editFolderPost,
+);
+indexRouter.get(
+  "/delete-folder/user/:userId/folder/:folderId",
+  indexController.deleteFolderGet,
+);
+indexRouter.get(
+  "/upload-file/user/:userId/folder/:folderId",
+  indexController.uploadFileGet,
+);
+indexRouter.post(
+  "/upload-file/user/:userId/folder/:folderId",
+  indexController.uploadFilePost,
+)
 
 module.exports = indexRouter;

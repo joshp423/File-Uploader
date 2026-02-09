@@ -3,6 +3,7 @@ import { body, validationResult, matchedData } from "express-validator";
 import prisma from "../lib/prisma.js";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import multer from 'multer';
 
 const emailErr = "must be a valid email address";
 const emailLengthErr = "must be between 1 and 50 characters";
@@ -32,6 +33,8 @@ const validateCreateorEditFolder = [
     .isLength({ min: 1, max: 25 })
     .withMessage(`Message Title: ${lengthErr}`),
 ];
+
+const upload = multer({ dest: 'uploads/' })
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -151,17 +154,19 @@ export const signUpFormPost = [
 ];
 
 export async function viewFolderGet(req, res) {
-
   const selectedFolder = await prisma.folder.findUnique({
     where: {
       id: Number(req.params.folderId),
     },
   });
 
-   if (!req.session.passport.user || req.session.passport.user !== selectedFolder.userid) {
-        res.redirect("/");
-        return;
-    }
+  if (
+    !req.session.passport.user ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
+    res.redirect("/");
+    return;
+  }
 
   const folderChildren = await prisma.folder.findMany({
     where: {
@@ -232,7 +237,11 @@ export async function editFolderGet(req, res) {
       id: Number(req.params.folderId),
     },
   });
-   if (!req.session.passport.user || !selectedFolder.parentFolder || req.session.passport.user !== selectedFolder.userid) {
+  if (
+    !req.session.passport.user ||
+    !selectedFolder.parentFolder ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
     res.redirect("/");
     return;
   }
@@ -263,7 +272,7 @@ export const editFolderPost = [
     try {
       await prisma.folder.update({
         where: {
-            id: selectedFolder.id
+          id: selectedFolder.id,
         },
         data: {
           name,
@@ -277,25 +286,52 @@ export const editFolderPost = [
   },
 ];
 
-export async function deleteFolderGet (req, res) {
-    const selectedFolder = await prisma.folder.findUnique({
+export async function deleteFolderGet(req, res) {
+  const selectedFolder = await prisma.folder.findUnique({
     where: {
       id: Number(req.params.folderId),
     },
   });
-   if (!req.session.passport.user || !selectedFolder.parentFolder || req.session.passport.user !== selectedFolder.userid) {
+  if (
+    !req.session.passport.user ||
+    !selectedFolder.parentFolder ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
     res.redirect("/");
     return;
   }
   try {
-      await prisma.folder.delete({
-        where: {
-            id: selectedFolder.id
-        }
-      });
-      res.redirect(`/view-files/user/:userId/folder/${selectedFolder.parentFolder}`);
-    } catch (error) {
-      console.error(error);
-      next(error);
-    }
+    await prisma.folder.delete({
+      where: {
+        id: selectedFolder.id,
+      },
+    });
+    res.redirect(
+      `/view-files/user/:userId/folder/${selectedFolder.parentFolder}`,
+    );
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+}
+
+export async function uploadFileGet(req, res) {
+  const selectedFolder = await prisma.folder.findUnique({
+      where: {
+        id: Number(req.params.folderId),
+      },
+  });
+  if (
+    !req.session.passport.user ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
+    res.redirect("/");
+    return;
+  }
+  res.render("files/uploadFile", {user: req.session.passport.user,
+    selectedFolder})
+}
+
+export async function uploadFilePost(req,res) {
+  
 }

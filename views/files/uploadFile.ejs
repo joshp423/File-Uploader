@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload File</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('../partials/nav') %>
+    <div class="createFolderForm">
+        <h1>Upload file to <%- selectedFolder.name %></h1>
+        <form method="post" action="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>">
+            <input type="file" class="form-control-file" name="uploaded_file">
+            <button type="submit">Upload File</button>
+        </form>
+    </div>
+</body>
+</html>
