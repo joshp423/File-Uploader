@@ -14,18 +14,22 @@
                 <a href="/create-folder/<%= user %>/<%= selectedFolder.id %>"><button>Create new folder</button></a>
                 <a href="/upload-file/<%= user %>/<%= selectedFolder.id %>"><button>Upload File</button></a>
             </div>
-            <% messages.forEach((message) => { %>
-                <%- include('../messages/message', {message, user}); %>
-            <% }); %>
+            <div class="homeFolderTitle">
+                <i class="fa-regular fa-folder"></i>
+                <h1>Home Folder</h1> 
+            </div>
         <% } else { %>
             <div class="folderNavButtons">
                 <a href="/view-files/<%= user %>/<%= selectedFolder.parentFolder %>"><button>Go to parent folder</button></a>
                 <a href="/create-folder/<%= user %>/<%= selectedFolder.id %>"><button>Create new folder</button></a>
                 <a href="/upload-file/<%= user %>/<%= selectedFolder.id %>"><button>Upload File</button></a>
-            <div class="folderTitle">
-                <i class="fa-regular fa-folder"></i>
-                <h1><%= selectedFolder.name %></h1>
-            </div>
+            <% if (folderChildren) {%>
+                <% folderChildren.forEach((folder) => { %>
+                    <%- include('../folders/childFolder', {files}); %>
+                <% }); %>
+            <% } else { %>
+                <h1>No </h1>
+            <% }; %>
         <% }; %>
     </div>
 </body>
