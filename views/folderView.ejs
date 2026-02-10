@@ -29,7 +29,7 @@
                 <%- include('./folders/childFolder', {folder}); %>
             <% }); %>
             <% fileChildren.forEach((file) => { %>
-                <%- include('./files/fileDetails', {file, folder: selectedFolder.id}); %>
+                <%- include('./files/childFile', {file}); %>
             <% }); %>
         <% } else { %>
             <h2>Nothing in folder</h2>

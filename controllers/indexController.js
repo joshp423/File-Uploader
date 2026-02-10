@@ -367,3 +367,32 @@ export const uploadFilePost = [
     res.redirect('/')
   }
 ]
+
+export async function fileDetailsGet(req, res) {
+
+  const selectedFile = await prisma.file.findUnique({
+    where: {
+      id: Number(req.params.fileId),
+    },
+  });
+
+  const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+
+  const downloadURL = selectedFile.url.replace(
+    '/upload/',
+    '/upload/fl_attachment/'
+  )
+  if (
+    !req.session.passport ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
+    res.redirect("/");
+    return;
+  }
+  res.render("files/fileDetails", {selectedFile, user: req.session.passport.user, downloadURL})
+}
+

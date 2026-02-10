@@ -19,7 +19,6 @@ indexRouter.post(
   "/create-folder/user/:userId/folder/:folderId",
   indexController.createFolderPost,
 );
-
 indexRouter.get(
   "/edit-folder/user/:userId/folder/:folderId",
   indexController.editFolderGet,
@@ -39,6 +38,10 @@ indexRouter.get(
 indexRouter.post(
   "/upload-file/user/:userId/folder/:folderId",
   indexController.uploadFilePost,
+)
+indexRouter.get(
+  "/file-details/user/:userId/folder/:folderId/file/:fileId",
+  indexController.fileDetailsGet,
 )
 
 module.exports = indexRouter;

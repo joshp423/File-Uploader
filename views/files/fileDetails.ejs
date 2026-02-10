@@ -1,4 +1,23 @@
-<div class="childFile">
-    <i class="fa-regular fa-file"></i>
-    <a href="/file-details/user/<%= user %>/folder/<%= folder.id %>/file/<%= file.id %>"><h1><%= file.name %></h1></a>   
-</div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%- selectedFile.name %></title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="https://kit.fontawesome.com/2378952b6f.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <%- include('../partials/nav') %>
+    <div class="filePage">
+        <%- include('../partials/fileNavButtons') %>
+        <div class="fileTitle">
+            <i class="fa-regular fa-file"></i>
+            <h1><%- selectedFile.name %></h1> 
+        </div>
+        <div class="fileDetails">
+            <h2>File Size: <%- (selectedFile.size / 1000) %>KB</h2>
+            <h2>Uploaded: <%- selectedFile.uploadTime %></h2> 
+        </div>
+    </div>
+</body>
+</html>
