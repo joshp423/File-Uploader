@@ -26,7 +26,10 @@
         <% }; %>
         <% if (folderChildren.length >= 1) {%>
             <% folderChildren.forEach((folder) => { %>
-                <%- include('./folders/childFolder', {folder}); %> <!-- add files -->
+                <%- include('./folders/childFolder', {folder}); %>
+            <% }); %>
+            <% fileChildren.forEach((file) => { %>
+                <%- include('./files/fileDetails', {file, folder: selectedFolder.id}); %>
             <% }); %>
         <% } else { %>
             <h2>Nothing in folder</h2>

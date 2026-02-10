@@ -4,6 +4,7 @@ import prisma from "../lib/prisma.js";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import multer from 'multer';
+import cloudinary from "../lib/cloudinary.js";
 
 const emailErr = "must be a valid email address";
 const emailLengthErr = "must be between 1 and 50 characters";
@@ -34,7 +35,8 @@ const validateCreateorEditFolder = [
     .withMessage(`Message Title: ${lengthErr}`),
 ];
 
-const upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: 'uploads/' });
+
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -80,8 +82,7 @@ passport.deserializeUser(async (id, done) => {
 });
 
 export async function homepageGet(req, res) {
-  console.log(req.session.passport.user);
-  if (req.session.passport.user) {
+  if (req.session.passport) {
     const userHomeFolder = await prisma.folder.findFirst({
       where: {
         parentFolder: null,
@@ -92,17 +93,22 @@ export async function homepageGet(req, res) {
     res.render("index", { user: req.session.passport.user, userHomeFolder });
     return;
   }
-  res.render("index", { user: req.session.passport.user });
+  else {
+    res.render("index", { user: null} );
+  }
+  
 }
 
 export async function logInPageGet(req, res) {
-  if (req.session.passport.user) {
+  if (req.session.passport) {
     res.redirect("/");
   }
-  res.render("login", {
-    user: req.session.passport.user,
-    error: req.flash("error"),
-  });
+  else {
+    res.render("login", {
+      user: null,
+      error: req.flash("error"),
+    });
+  }
 }
 
 export const logInPagePost = passport.authenticate("local", {
@@ -173,11 +179,19 @@ export async function viewFolderGet(req, res) {
       parentFolder: selectedFolder.id,
     },
   });
-  console.log(folderChildren);
+
+  const fileChildren = await prisma.file.findMany({
+    where: {
+      folderId: selectedFolder.id,
+    }
+  })
+
+  console.log(folderChildren, fileChildren);
   res.render("folderView", {
     user: req.session.passport.user,
     selectedFolder,
     folderChildren,
+    fileChildren
   });
 }
 
@@ -332,6 +346,24 @@ export async function uploadFileGet(req, res) {
     selectedFolder})
 }
 
-export async function uploadFilePost(req,res) {
-  
-}
+export const uploadFilePost = [
+  upload.single('uploaded_file'), async (req, res) => {
+    console.log(req.file, req.params.folderId)
+    try {
+        const uploadResult = await cloudinary.uploader.upload(req.file.path)
+        console.log(uploadResult);
+        await prisma.file.create({
+          data: {
+            folderId: Number(req.params.folderId),
+            url: uploadResult.secure_url,
+            name: uploadResult.original_filename,
+            size: uploadResult.bytes,
+            uploadTime: new Date()
+          },
+        })
+    } catch (error) {
+        console.log(error)
+    }
+    res.redirect('/')
+  }
+]
