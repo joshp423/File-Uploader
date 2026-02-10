@@ -3,7 +3,7 @@ import { body, validationResult, matchedData } from "express-validator";
 import prisma from "../lib/prisma.js";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import multer from 'multer';
+import multer from "multer";
 import cloudinary from "../lib/cloudinary.js";
 
 const emailErr = "must be a valid email address";
@@ -35,8 +35,7 @@ const validateCreateorEditFolder = [
     .withMessage(`Message Title: ${lengthErr}`),
 ];
 
-const upload = multer({ dest: 'uploads/' });
-
+const upload = multer({ dest: "uploads/" });
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -92,18 +91,15 @@ export async function homepageGet(req, res) {
     console.log(userHomeFolder);
     res.render("index", { user: req.session.passport.user, userHomeFolder });
     return;
+  } else {
+    res.render("index", { user: null });
   }
-  else {
-    res.render("index", { user: null} );
-  }
-  
 }
 
 export async function logInPageGet(req, res) {
   if (req.session.passport) {
     res.redirect("/");
-  }
-  else {
+  } else {
     res.render("login", {
       user: null,
       error: req.flash("error"),
@@ -183,15 +179,15 @@ export async function viewFolderGet(req, res) {
   const fileChildren = await prisma.file.findMany({
     where: {
       folderId: selectedFolder.id,
-    }
-  })
+    },
+  });
 
   console.log(folderChildren, fileChildren);
   res.render("folderView", {
     user: req.session.passport.user,
     selectedFolder,
     folderChildren,
-    fileChildren
+    fileChildren,
   });
 }
 
@@ -237,7 +233,7 @@ export const createFolderPost = [
           userid: req.session.passport.user,
         },
       });
-      res.redirect("/view-files/user/:userId/folder/:folderId");
+      res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.id}`);
     } catch (error) {
       console.error(error);
       next(error);
@@ -292,7 +288,7 @@ export const editFolderPost = [
           name,
         },
       });
-      res.redirect("/view-files/user/:userId/folder/:folderId");
+      res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.id}`);
     } catch (error) {
       console.error(error);
       next(error);
@@ -314,26 +310,68 @@ export async function deleteFolderGet(req, res) {
     res.redirect("/");
     return;
   }
+  const folderChildren = await prisma.folder.findMany({
+    where: {
+      parentFolder: selectedFolder.id,
+    },
+  });
+
+  const fileChildren = await prisma.file.findMany({
+    where: {
+      folderId: selectedFolder.id,
+    },
+  });
+  if (folderChildren.length >0) {
+    for (const folder of folderChildren) {
+      try {
+        await prisma.folder.delete({
+          where: {
+            id: folder.id,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+  if (fileChildren.length >0) {
+    for (const file of fileChildren) {
+      console.log(`file ${file}`)
+      try {
+        await cloudinary.uploader.destroy(file.publicId);
+      } catch (error) {
+        console.error(error);
+        res.redirect("/");
+      }
+      try {
+        await prisma.file.delete({
+          where: {
+            id: file.id,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
+
   try {
     await prisma.folder.delete({
       where: {
         id: selectedFolder.id,
       },
     });
-    res.redirect(
-      `/view-files/user/:userId/folder/${selectedFolder.parentFolder}`,
-    );
+    res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.parentFolder}`);
   } catch (error) {
     console.error(error);
-    next(error);
   }
 }
 
 export async function uploadFileGet(req, res) {
   const selectedFolder = await prisma.folder.findUnique({
-      where: {
-        id: Number(req.params.folderId),
-      },
+    where: {
+      id: Number(req.params.folderId),
+    },
   });
   if (
     !req.session.passport.user ||
@@ -342,50 +380,48 @@ export async function uploadFileGet(req, res) {
     res.redirect("/");
     return;
   }
-  res.render("files/uploadFile", {user: req.session.passport.user,
-    selectedFolder})
+  res.render("files/uploadFile", {
+    user: req.session.passport.user,
+    selectedFolder,
+  });
 }
 
 export const uploadFilePost = [
-  upload.single('uploaded_file'), async (req, res) => {
-    console.log(req.file, req.params.folderId)
+  upload.single("uploaded_file"),
+  async (req, res) => {
+    console.log(req.file, req.params.folderId);
+    const selectedFolder = await prisma.folder.findUnique({
+      where: {
+        id: Number(req.params.folderId),
+      },
+    });
     try {
-        const uploadResult = await cloudinary.uploader.upload(req.file.path)
-        console.log(uploadResult);
-        await prisma.file.create({
-          data: {
-            folderId: Number(req.params.folderId),
-            url: uploadResult.secure_url,
-            name: uploadResult.original_filename,
-            size: uploadResult.bytes,
-            uploadTime: new Date()
-          },
-        })
+      const uploadResult = await cloudinary.uploader.upload(req.file.path);
+      console.log(uploadResult);
+      await prisma.file.create({
+        data: {
+          folderId: Number(req.params.folderId),
+          url: uploadResult.secure_url,
+          name: req.file.originalname,
+          size: uploadResult.bytes,
+          publicId: uploadResult.public_id,
+          uploadTime: new Date(),
+        },
+      });
     } catch (error) {
-        console.log(error)
+      console.log(error);
     }
-    res.redirect('/')
-  }
-]
+    res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.id}`);
+  },
+];
 
 export async function fileDetailsGet(req, res) {
-
-  const selectedFile = await prisma.file.findUnique({
-    where: {
-      id: Number(req.params.fileId),
-    },
-  });
-
   const selectedFolder = await prisma.folder.findUnique({
     where: {
       id: Number(req.params.folderId),
     },
   });
 
-  const downloadURL = selectedFile.url.replace(
-    '/upload/',
-    '/upload/fl_attachment/'
-  )
   if (
     !req.session.passport ||
     req.session.passport.user !== selectedFolder.userid
@@ -393,6 +429,114 @@ export async function fileDetailsGet(req, res) {
     res.redirect("/");
     return;
   }
-  res.render("files/fileDetails", {selectedFile, user: req.session.passport.user, downloadURL})
+  const selectedFile = await prisma.file.findUnique({
+    where: {
+      id: Number(req.params.fileId),
+    },
+  });
+  const downloadURL = selectedFile.url.replace(
+    "/upload/",
+    "/upload/fl_attachment/",
+  );
+  res.render("files/fileDetails", {
+    selectedFile,
+    user: req.session.passport.user,
+    downloadURL,
+  });
 }
 
+export async function editFileGet(req, res) {
+  const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+  if (
+    !req.session.passport ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
+    res.redirect("/");
+    return;
+  }
+  const selectedFile = await prisma.file.findUnique({
+    where: {
+      id: Number(req.params.fileId),
+    },
+  });
+  res.render("files/editFile", {
+    selectedFile,
+    user: req.session.passport.user,
+  });
+}
+
+export const editFilePost = [
+  ...validateCreateorEditFolder,
+  async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).render("files/editFile", {
+        title: "Edit File",
+        user: req.session.passport.user,
+        errors: errors.array(),
+      });
+    }
+    const selectedFile = await prisma.file.findUnique({
+      where: {
+        id: Number(req.params.fileId),
+      },
+    });
+
+    const { name } = matchedData(req);
+
+    try {
+      await prisma.file.update({
+        where: {
+          id: selectedFile.id,
+        },
+        data: {
+          name,
+        },
+      });
+      res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.id}`);
+    } catch (error) {
+      console.error(error);
+      next(error);
+    }
+  },
+];
+
+export async function deleteFileGet(req, res) {
+  const selectedFolder = await prisma.folder.findUnique({
+    where: {
+      id: Number(req.params.folderId),
+    },
+  });
+  if (
+    !req.session.passport ||
+    req.session.passport.user !== selectedFolder.userid
+  ) {
+    res.redirect("/");
+    return;
+  }
+  const selectedFile = await prisma.file.findUnique({
+    where: {
+      id: Number(req.params.fileId),
+    },
+  });
+  try {
+    await cloudinary.uploader.destroy(selectedFile.publicId);
+    } catch (error) {
+      console.error(error);
+  }
+  try {
+    await prisma.file.delete({
+      where: {
+        id: selectedFile.id,
+      },
+    });
+    res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.id}`);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+}

@@ -17,7 +17,7 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: false }));
 require("./controllers/indexController.js");
-const flash = require("connect-flash")
+const flash = require("connect-flash");
 
 app.use(
   expressSession({
@@ -38,7 +38,7 @@ app.use(
 app.use(flash());
 app.use("/", indexRouter);
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, (error) => {
   if (error) {
     throw error;

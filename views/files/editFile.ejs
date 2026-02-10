@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit or Delete <%- selectedFile.name %></title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <%- include('../partials/nav') %>
+    <a href="/view-files/user/<%= user %>/folder/<%= selectedFile.folderId %>"><button>Back to Parent Folder</button></a>
+    <div class="editFileForm">
+        <h1>Edit <%- selectedFile.name %></h1>
+        <form method="post" action="/edit-file/user/<%= user %>/folder/<%= selectedFile.folderId %>/file/<%= selectedFile.id %>">
+            <label for="name">New File Name:</label>
+            <input id="name" name="name" type="text" value="<%= selectedFile.name %>"/>
+            <button type="submit">Submit</button>
+        </form>
+        <a href="/delete-file/user/<%= user %>/folder/<%= selectedFile.folderId %>/file/<%= selectedFile.id %>"><button>Delete File Permanently</button></a>
+    </div>
+</body>
+</html>

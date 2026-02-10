@@ -38,6 +38,7 @@ model File {
   folderId Int
   size Int
   uploadTime DateTime
+  publicId String
   @@unique([folderId, name])
 }
 

@@ -24,7 +24,7 @@
                 <h1>Your Files</h1> 
             </div>
         <% }; %>
-        <% if (folderChildren.length >= 1) {%>
+        <% if (folderChildren.length >= 1 || fileChildren.length >=1) {%>
             <% folderChildren.forEach((folder) => { %>
                 <%- include('./folders/childFolder', {folder}); %>
             <% }); %>

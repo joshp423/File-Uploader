@@ -38,10 +38,21 @@ indexRouter.get(
 indexRouter.post(
   "/upload-file/user/:userId/folder/:folderId",
   indexController.uploadFilePost,
-)
+);
 indexRouter.get(
   "/file-details/user/:userId/folder/:folderId/file/:fileId",
   indexController.fileDetailsGet,
-)
-
+);
+indexRouter.get(
+  "/edit-file/user/:userId/folder/:folderId/file/:fileId",
+  indexController.editFileGet,
+);
+indexRouter.post(
+  "/edit-file/user/:userId/folder/:folderId/file/:fileId",
+  indexController.editFilePost,
+);
+indexRouter.get(
+  "/delete-file/user/:userId/folder/:folderId/file/:fileId",
+  indexController.deleteFileGet,
+);
 module.exports = indexRouter;

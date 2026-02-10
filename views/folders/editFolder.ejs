@@ -13,7 +13,7 @@
         <form method="post" action="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>">
             <label for="name">New Folder Name</label>
             <input id="name" name="name" type="text" value="<%= selectedFolder.name %>"/>
-            <button type="submit">Create Folder</button>
+            <button type="submit">Submit</button>
         </form>
         <a href="/delete-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Delete Folder and Contents</button></a>
 
