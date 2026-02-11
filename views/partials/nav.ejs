@@ -2,20 +2,54 @@
     <h1>File Uploader</h1>
     <div class="navLinks">
         <% if (locals.user) {%>
-            <a href="/">
-            <button>Home</button>
+            <a href="/" id="linkOne">
+            <h1>Home</h1>
             </a>
-            <a href="/log-out">
-            <button>Log Out</button>
+            <a href="/log-out" id="linkTwo">
+            <h1>Log Out</h1>
             </a>
         <% } else { %>
-            <a href="/log-in">
-            <button>Log In</button>
+            <a href="/log-in" id="linkOne">
+            <h1>Log In</h1>
             </a>
-            <a href="/sign-up">
-            <button>Sign Up</button>
+            <a href="/sign-up" id="linkTwo">
+            <h1>Sign Up</h1>
             </a>
         <%}%>
     </div>
+    <script>
+        const linkOne = document.getElementById('linkOne');
+        const linkTwo = document.getElementById('linkTwo');
+
+        linkOne.addEventListener("mouseover", (event) => {
+            linkTwo.classList.add("unselected")
+            linkOne.classList.add("selected")
+            linkTwo.style.paddingTop = "1px"
+            linkOne.style.paddingTop = "1px"
+        });
+        linkOne.addEventListener("mouseout", (event) => {
+            linkTwo.classList.remove("unselected")
+            linkOne.classList.remove("selected")
+            linkTwo.style.opacity = "1.0"
+            linkTwo.style.paddingTop = "0px"
+            linkOne.style.paddingTop = "0px"
+        });
+        
+        linkTwo.addEventListener("mouseover", (event) => {
+            linkTwo.classList.add("selected")
+            linkOne.classList.add("unselected")
+            linkOne.style.color = "rgb(91, 90, 90)"
+            linkOne.style.paddingTop = "1px"
+            linkTwo.style.paddingTop = "1px"
+        });
+        
+        linkTwo.addEventListener("mouseout", (event) => {
+             linkTwo.classList.remove("selected")
+            linkOne.classList.remove("unselected")
+            linkOne.style.color = "white"
+            linkOne.style.paddingTop = "0px"
+            linkTwo.style.paddingTop = "0px"
+        });
+    </script>
   </ul>
 </nav>
