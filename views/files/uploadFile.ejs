@@ -8,11 +8,27 @@
 <body>
     <%- include('../partials/nav') %>
     <div class="createFolderForm">
+        <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Back</button></a>
         <h1>Upload file to <%- selectedFolder.name %></h1>
         <form method="post" action="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>" enctype="multipart/form-data">
-            <input type="file" class="form-control-file" name="uploaded_file">
-            <button type="submit">Upload File</button>
+            <input type="file" class="form-control-file" name="uploaded_file" id="fileInput">
+            <button type="submit" id="submitButton">Submit</button>
         </form>
     </div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const submitBtn = document.getElementById('submitButton');
+
+        submitBtn.disabled = true;
+        
+        fileInput.addEventListener('change', function()  {
+            if (this.files.length === 0) {
+                submitBtn.disabled = true;
+            } else {
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+
 </body>
 </html>

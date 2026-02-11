@@ -8,6 +8,7 @@
 <body>
     <%- include('../partials/nav') %>
     <div class="createFolderForm">
+        <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Back</button></a>
         <h1>Create New Folder</h1>
         <form method="post" action="/create-folder/user/<%= user %>/folder/<%= selectedFolder.id %>">
             <label for="name">New Folder Name</label>

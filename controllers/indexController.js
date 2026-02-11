@@ -35,7 +35,8 @@ const validateCreateorEditFolder = [
     .withMessage(`Message Title: ${lengthErr}`),
 ];
 
-const upload = multer({ dest: "uploads/" });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 passport.use(
   new LocalStrategy(async (username, password, done) => {
@@ -88,7 +89,6 @@ export async function homepageGet(req, res) {
         userid: req.session.passport.user,
       },
     });
-    console.log(userHomeFolder);
     res.render("index", { user: req.session.passport.user, userHomeFolder });
     return;
   } else {
@@ -132,7 +132,6 @@ export const signUpFormPost = [
       });
     }
     const { username, password } = matchedData(req);
-    console.log(prisma, prisma.user);
     try {
       const hashedPassword = await bcrypt.hash(password, 10);
       const user = await prisma.user.create({
@@ -182,7 +181,6 @@ export async function viewFolderGet(req, res) {
     },
   });
 
-  console.log(folderChildren, fileChildren);
   res.render("folderView", {
     user: req.session.passport.user,
     selectedFolder,
@@ -312,38 +310,19 @@ export async function deleteFolderGet(req, res) {
   }
 
   async function deleteChildFolderTree(deletedFolder) {
+
     const fileChildren = await prisma.file.findMany({
       where: {
         folderId: deletedFolder.id,
       },
     });
-    if (fileChildren.length > 0) {
-      for (const file of fileChildren) {
-        try {
-          await cloudinary.uploader.destroy(file.publicId);
-          await prisma.file.delete({
-            where: {
-              id: file.id,
-            },
-          });
-        } catch (error) {
-          console.error(error);
-          res.redirect("/");
-          return;
-        }
-      }
-    }
-    const childFolders = await prisma.folder.findMany({
-      where: {
-        parentFolder: deletedFolder.id,
-      },
-    });
-    if (childFolders.length > 0) {
-      const folderDelete = childFolders.shift()
+
+    for (const file of fileChildren) {
       try {
-        await prisma.folder.delete({
+        await cloudinary.uploader.destroy(file.publicId);
+        await prisma.file.delete({
           where: {
-            id: folderDelete.id,
+            id: file.id,
           },
         });
       } catch (error) {
@@ -351,53 +330,32 @@ export async function deleteFolderGet(req, res) {
         res.redirect("/");
         return;
       }
-      await deleteChildFolderTree(childFolders[0]);
     }
+
+    const childFolders = await prisma.folder.findMany({
+      where: {
+        parentFolder: deletedFolder.id,
+      },
+    });
+    for (const folder of childFolders) {
+      deleteChildFolderTree(folder)
+    }
+      try {
+        await prisma.folder.delete({
+          where: {
+            id: deletedFolder.id,
+          },
+        });
+      } catch (error) {
+        console.error(error);
+        res.redirect("/");
+        return;
+      }
     return;
   }
   
   deleteChildFolderTree(selectedFolder);
-  // if (folderChildren.length >0) {
-  //   for (const folder of folderChildren) {
-
-  //     try {
-  //       await prisma.folder.delete({
-  //         where: {
-  //           id: folder.id,
-  //         },
-  //       });
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   }
-  // }
-  // if (fileChildren.length >0) {
-  //   for (const file of fileChildren) {
-  //     console.log(`file ${file}`)
-  //     try {
-  //       await cloudinary.uploader.destroy(file.publicId);
-  //     } catch (error) {
-  //       console.error(error);
-  //       res.redirect("/");
-  //     }
-  //     try {
-  //       await prisma.file.delete({
-  //         where: {
-  //           id: file.id,
-  //         },
-  //       });
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   }
-  // }
-
-  // try {
-  //   await prisma.folder.delete({
-  //     where: {
-  //       id: selectedFolder.id,
-  //     },
-  //   });
+  
   res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.parentFolder}`);
 }
 
@@ -423,7 +381,6 @@ export async function uploadFileGet(req, res) {
 export const uploadFilePost = [
   upload.single("uploaded_file"),
   async (req, res) => {
-    console.log(req.file, req.params.folderId);
     const selectedFolder = await prisma.folder.findUnique({
       where: {
         id: Number(req.params.folderId),
@@ -431,7 +388,6 @@ export const uploadFilePost = [
     });
     try {
       const uploadResult = await cloudinary.uploader.upload(req.file.path);
-      console.log(uploadResult);
       await prisma.file.create({
         data: {
           folderId: Number(req.params.folderId),
