@@ -310,61 +310,95 @@ export async function deleteFolderGet(req, res) {
     res.redirect("/");
     return;
   }
-  const folderChildren = await prisma.folder.findMany({
-    where: {
-      parentFolder: selectedFolder.id,
-    },
-  });
 
-  const fileChildren = await prisma.file.findMany({
-    where: {
-      folderId: selectedFolder.id,
-    },
-  });
-  if (folderChildren.length >0) {
-    for (const folder of folderChildren) {
+  async function deleteChildFolderTree(deletedFolder) {
+    const fileChildren = await prisma.file.findMany({
+      where: {
+        folderId: deletedFolder.id,
+      },
+    });
+    if (fileChildren.length > 0) {
+      for (const file of fileChildren) {
+        try {
+          await cloudinary.uploader.destroy(file.publicId);
+          await prisma.file.delete({
+            where: {
+              id: file.id,
+            },
+          });
+        } catch (error) {
+          console.error(error);
+          res.redirect("/");
+          return;
+        }
+      }
+    }
+    const childFolders = await prisma.folder.findMany({
+      where: {
+        parentFolder: deletedFolder.id,
+      },
+    });
+    if (childFolders.length > 0) {
+      const folderDelete = childFolders.shift()
       try {
         await prisma.folder.delete({
           where: {
-            id: folder.id,
+            id: folderDelete.id,
           },
         });
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }
-  if (fileChildren.length >0) {
-    for (const file of fileChildren) {
-      console.log(`file ${file}`)
-      try {
-        await cloudinary.uploader.destroy(file.publicId);
       } catch (error) {
         console.error(error);
         res.redirect("/");
+        return;
       }
-      try {
-        await prisma.file.delete({
-          where: {
-            id: file.id,
-          },
-        });
-      } catch (error) {
-        console.error(error);
-      }
+      await deleteChildFolderTree(childFolders[0]);
     }
+    return;
   }
+  
+  deleteChildFolderTree(selectedFolder);
+  // if (folderChildren.length >0) {
+  //   for (const folder of folderChildren) {
 
-  try {
-    await prisma.folder.delete({
-      where: {
-        id: selectedFolder.id,
-      },
-    });
-    res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.parentFolder}`);
-  } catch (error) {
-    console.error(error);
-  }
+  //     try {
+  //       await prisma.folder.delete({
+  //         where: {
+  //           id: folder.id,
+  //         },
+  //       });
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   }
+  // }
+  // if (fileChildren.length >0) {
+  //   for (const file of fileChildren) {
+  //     console.log(`file ${file}`)
+  //     try {
+  //       await cloudinary.uploader.destroy(file.publicId);
+  //     } catch (error) {
+  //       console.error(error);
+  //       res.redirect("/");
+  //     }
+  //     try {
+  //       await prisma.file.delete({
+  //         where: {
+  //           id: file.id,
+  //         },
+  //       });
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   }
+  // }
+
+  // try {
+  //   await prisma.folder.delete({
+  //     where: {
+  //       id: selectedFolder.id,
+  //     },
+  //   });
+  res.redirect(`/view-files/user/${selectedFolder.userid}/folder/${selectedFolder.parentFolder}`);
 }
 
 export async function uploadFileGet(req, res) {
