@@ -9,10 +9,10 @@
     <%- include('../partials/nav') %>
     <div class="createFolderForm">
         <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Back</button></a>
-        <h1>Create New Folder</h1>
         <form method="post" action="/create-folder/user/<%= user %>/folder/<%= selectedFolder.id %>">
+            <h1>Create New Folder</h1>
             <label for="name">New Folder Name</label>
-            <input id="name" name="name" placeholder="Folder Name" type="text" />
+            <input required id="name" name="name" placeholder="Folder Name" type="text" />
             <button type="submit">Create Folder</button>
         </form>
     </div>

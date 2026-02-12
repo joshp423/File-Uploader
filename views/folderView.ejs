@@ -12,27 +12,27 @@
     <div class="folderPage">
         <div class="folderContent">
         <% if (selectedFolder.parentFolder) {%>
-            <div>
                 <div class="homeFolderTitle">
                     <i class="fa-regular fa-folder"></i>
                     <h1><%- selectedFolder.name %></h1> 
                 </div>
         <% } else { %>
             <div class="homeFolderTitle">
-                <h1>Your Files</h1> 
+                <h1>Your Files:</h1> 
             </div>
         <% }; %>
         <% if (folderChildren.length >= 1 || fileChildren.length >=1) {%>
+            <div class="folderChildren">
             <% folderChildren.forEach((folder) => { %>
                 <%- include('./folders/childFolder', {folder}); %>
             <% }); %>
             <% fileChildren.forEach((file) => { %>
                 <%- include('./files/childFile', {file}); %>
             <% }); %>
+            </div>
         <% } else { %>
             <h2>Nothing in folder</h2>
         <% } %>
-        </div>
     </div>
 </body>
 </html>
