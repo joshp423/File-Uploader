@@ -1,6 +1,11 @@
 <div class="folderNavButtons">
-    <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.parentFolder %>"><button>Back to Parent Folder</button></a>
-    <a href="/create-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Create New Folder</button></a>
-    <a href="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Upload File</button></a>
-    <a href="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Edit or Delete Folder</button></a>
+    <% if (selectedFolder.parentFolder) {%>
+        <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.parentFolder %>"><button>Back to Parent Folder</button></a>
+        <a href="/create-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Create New Folder</button></a>
+        <a href="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Upload File</button></a>
+        <a href="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Edit or Delete Folder</button></a>
+    <% } else { %>
+        <a href="/create-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Create New Folder</button></a>
+        <a href="/upload-file/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Upload File</button></a>
+    <% }; %>
 </div>

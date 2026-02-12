@@ -3,22 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <title>File Uploader</title>
-    <link rel="stylesheet" href="public/styles.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <%- include('partials/nav') %>
     <div class="HPMain">
-        <h1>File Uploader.</h1>
-        <h1>All your files. All here.</h1>
-        <p>One of the file uploading platforms of all time. Upload files with us today.</p>
-        <div class="HPButtons">
-        <% if (user) {%>
-            <a href="/view-files/user/<%= user %>/folder/<%= userHomeFolder.id %>"><button>Your Files</button></a>
-            <a href="/log-out"><button>Log Out</button></a>
-        <% } else { %>
-            <a href="/log-in"><button>Log In</button></a>
-            <a href="/sign-up"><button>Sign Up</button></a>
-        <% } %>
+        <div class="HPContent">
+            <h1>File Uploader.</h1>
+            <h1>All your files. All here.</h1>
+            <p>One of the file uploading platforms of all time. Upload files with us today.</p>
+            <div class="HPButtons">
+            <% if (user) {%>
+                <a href="/view-files/user/<%= user %>/folder/<%= userHomeFolder.id %>"><button>Your Files</button></a>
+                <a href="/log-out"><button>Log Out</button></a>
+            <% } else { %>
+                <a href="/log-in"><button>Log In</button></a>
+                <a href="/sign-up"><button>Sign Up</button></a>
+            <% } %>
+            </div>
         </div>
     </div>
 </body>
