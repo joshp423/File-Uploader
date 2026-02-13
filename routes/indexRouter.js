@@ -55,4 +55,7 @@ indexRouter.get(
   "/delete-file/user/:userId/folder/:folderId/file/:fileId",
   indexController.deleteFileGet,
 );
+
+indexRouter.get ("/log-out", indexController.logOutGet)
+
 module.exports = indexRouter;

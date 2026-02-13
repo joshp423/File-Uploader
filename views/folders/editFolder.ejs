@@ -9,14 +9,15 @@
     <%- include('../partials/nav') %>
     <%- include('../partials/folderNavButtons') %>
     <div class="editFolderForm">
-        <h1>Edit <%- selectedFolder.name %></h1>
-        <form method="post" action="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>">
-            <label for="name">New Folder Name</label>
-            <input id="name" name="name" type="text" value="<%= selectedFolder.name %>"/>
-            <button type="submit">Submit</button>
-        </form>
-        <a href="/delete-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Delete Folder and Contents</button></a>
-
+        <div>
+            <a href="/view-files/user/<%= user %>/folder/<%= selectedFolder.id %>"><button>Back</button></a>
+            <form method="post" action="/edit-folder/user/<%= user %>/folder/<%= selectedFolder.id %>">
+                <h1>Edit <%- selectedFolder.name %></h1>
+                <input id="name" name="name" type="text" value="<%= selectedFolder.name %>"/>
+                <button type="submit">Submit</button>
+                <a href="/delete-folder/user/<%= user %>/folder/<%= selectedFolder.id %>"><button type="button">Delete Folder and Contents</button></a>
+            </form>
+        </div>
     </div>
 </body>
 </html>

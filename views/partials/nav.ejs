@@ -1,5 +1,5 @@
 <nav>
-    <h1>File Uploader</h1>
+    <a href="/">File Uploader</a>
     <div class="navLinks">
         <% if (locals.user) {%>
             <a href="/" id="linkOne">
@@ -13,11 +13,11 @@
         <% } else { %>
             <a href="/log-in" id="linkOne">
             <h1>Log In</h1>
-            <div class="navBorder"></div>
+            <div id="navBorderOne"></div>
             </a>
             <a href="/sign-up" id="linkTwo">
             <h1>Sign Up</h1>
-            <div class="navBorder"></div>
+            <div id="navBorderTwo"></div>
             </a>
         <%}%>
     </div>

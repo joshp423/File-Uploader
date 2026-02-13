@@ -8,15 +8,18 @@
 </head>
 <body>
     <%- include('../partials/nav') %>
+    <%- include('../partials/fileNavButtons') %>
     <div class="filePage">
-        <%- include('../partials/fileNavButtons') %>
-        <div class="fileTitle">
-            <i class="fa-regular fa-file"></i>
-            <h1><%- selectedFile.name %></h1> 
-        </div>
-        <div class="fileDetails">
-            <h2>File Size: <%- (selectedFile.size / 1000) %>KB</h2>
-            <h2>Uploaded: <%- selectedFile.uploadTime %></h2> 
+        
+        <div>
+            <div class="fileTitle">
+                <i class="fa-regular fa-file"></i>
+                <h1><%- selectedFile.name %></h1> 
+            </div>
+            <div class="fileDetails">
+                <h2>File Size: <%- (selectedFile.size / 1000) %>KB</h2>
+                <h2>Uploaded: <%- selectedFile.uploadTime %></h2> 
+            </div>
         </div>
     </div>
 </body>

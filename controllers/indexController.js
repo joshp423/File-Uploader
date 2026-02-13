@@ -387,13 +387,23 @@ export async function uploadFileGet(req, res) {
 export const uploadFilePost = [
   upload.single("uploaded_file"),
   async (req, res) => {
+    console.log(req.file) 
     const selectedFolder = await prisma.folder.findUnique({
       where: {
         id: Number(req.params.folderId),
       },
     });
     try {
-      const uploadResult = await cloudinary.uploader.upload(req.file.path);
+      const uploadResult = await new Promise((resolve, reject) => { //convert callback to promise because of async route handler
+        const stream = cloudinary.uploader.upload_stream(
+          {resource_type: "auto"},
+          (error, result) => {
+            if (error) return reject(error);
+            resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
       await prisma.file.create({
         data: {
           folderId: Number(req.params.folderId),
@@ -535,4 +545,12 @@ export async function deleteFileGet(req, res) {
     console.error(error);
     next(error);
   }
+}
+
+export async function logOutGet(req, res) {
+  req.session.destroy(function (err) {
+      if (err) return next(err);
+      res.clearCookie("connect.sid");
+      res.redirect("/");
+  });
 }

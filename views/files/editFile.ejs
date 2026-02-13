@@ -7,15 +7,16 @@
 </head>
 <body>
     <%- include('../partials/nav') %>
-    <a href="/view-files/user/<%= user %>/folder/<%= selectedFile.folderId %>"><button>Back to Parent Folder</button></a>
     <div class="editFileForm">
-        <h1>Edit <%- selectedFile.name %></h1>
-        <form method="post" action="/edit-file/user/<%= user %>/folder/<%= selectedFile.folderId %>/file/<%= selectedFile.id %>">
-            <label for="name">New File Name:</label>
-            <input id="name" name="name" type="text" value="<%= selectedFile.name %>"/>
-            <button type="submit">Submit</button>
-        </form>
-        <a href="/delete-file/user/<%= user %>/folder/<%= selectedFile.folderId %>/file/<%= selectedFile.id %>"><button>Delete File Permanently</button></a>
+        <div>
+            <a href="/view-files/user/<%= user %>/folder/<%= selectedFile.folderId %>"><button>Back</button></a>
+            <form method="post" action="/edit-file/user/<%= user %>/folder/<%= selectedFile.folderId %>/file/<%= selectedFile.id %>">
+                <h1>Edit File</h1>
+                <input id="name" name="name" type="text" value="<%= selectedFile.name %>"/>
+                <button type="submit">Submit</button>
+                <a href="/delete-file/user/<%= user %>/folder/<%= selectedFile.folderId %>/file/<%= selectedFile.id %>"><button type="button">Delete File Permanently</button></a>
+            </form>
+        </div>
     </div>
 </body>
 </html>
