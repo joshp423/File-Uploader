@@ -56,6 +56,6 @@ indexRouter.get(
   indexController.deleteFileGet,
 );
 
-indexRouter.get ("/log-out", indexController.logOutGet)
+indexRouter.get("/log-out", indexController.logOutGet);
 
 module.exports = indexRouter;
